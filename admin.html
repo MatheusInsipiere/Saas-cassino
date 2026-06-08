@@ -1,0 +1,1948 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Gestor Bac Bo - Painel Administrativo</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Orbitron:wght@700;800;900&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --sidebar: 216px;
+      --bg: #02040b;
+      --panel: rgba(7, 12, 29, .96);
+      --panel2: rgba(4, 7, 17, .96);
+      --line: rgba(255,255,255,.10);
+      --line-blue: rgba(49, 90, 200, .38);
+      --blue: #2358ff;
+      --blue2: #7396ff;
+      --red: #ff123c;
+      --red2: #ff5b73;
+      --green: #22d676;
+      --yellow: #ffd166;
+      --text: #ffffff;
+      --muted: #a8b3cf;
+      --radius: 18px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    button,
+    input,
+    select {
+      font-family: inherit;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: var(--sidebar) minmax(0, 1fr);
+      background:
+        radial-gradient(circle at 42% 8%, rgba(35, 88, 255, .18), transparent 31%),
+        radial-gradient(circle at 92% 24%, rgba(255, 18, 60, .14), transparent 28%),
+        linear-gradient(180deg, #02040b 0%, #030611 100%);
+      position: relative;
+    }
+
+    .app::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(circle, rgba(255, 25, 58, .50) 0 1px, transparent 1px),
+        radial-gradient(circle, rgba(30, 93, 255, .42) 0 1px, transparent 1px);
+      background-size: 112px 140px, 130px 120px;
+      opacity: .12;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .sidebar {
+      min-height: 100vh;
+      width: var(--sidebar);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(2, 4, 12, .96);
+      border-right: 1px solid rgba(48, 84, 180, .28);
+      padding: 22px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .sidebar-logo {
+      width: 100%;
+      text-align: center;
+    }
+
+    .dice-mini {
+      width: 70px;
+      height: 54px;
+      margin: 0 auto 8px;
+      position: relative;
+    }
+
+    .die {
+      position: absolute;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      padding: 6px;
+      box-shadow: inset 0 0 8px rgba(255,255,255,.22), 0 0 13px currentColor;
+    }
+
+    .die span {
+      width: 4.5px;
+      height: 4.5px;
+      border-radius: 50%;
+      background: #fff;
+      align-self: center;
+      justify-self: center;
+      box-shadow: 0 0 4px #fff;
+    }
+
+    .die-blue {
+      left: 6px;
+      top: 0;
+      background: linear-gradient(145deg, #071655, #1450ff);
+      border: 1px solid rgba(105, 145, 255, .9);
+      color: #2358ff;
+      transform: rotate(-18deg);
+    }
+
+    .die-red {
+      right: 5px;
+      top: 18px;
+      background: linear-gradient(145deg, #650516, #f10a2d);
+      border: 1px solid rgba(255, 102, 125, .9);
+      color: #ff123c;
+      transform: rotate(17deg);
+    }
+
+    .six span:nth-child(1) { grid-column: 1; grid-row: 1; }
+    .six span:nth-child(2) { grid-column: 3; grid-row: 1; }
+    .six span:nth-child(3) { grid-column: 1; grid-row: 2; }
+    .six span:nth-child(4) { grid-column: 3; grid-row: 2; }
+    .six span:nth-child(5) { grid-column: 1; grid-row: 3; }
+    .six span:nth-child(6) { grid-column: 3; grid-row: 3; }
+
+    .five span:nth-child(1) { grid-column: 1; grid-row: 1; }
+    .five span:nth-child(2) { grid-column: 3; grid-row: 1; }
+    .five span:nth-child(3) { grid-column: 2; grid-row: 2; }
+    .five span:nth-child(4) { grid-column: 1; grid-row: 3; }
+    .five span:nth-child(5) { grid-column: 3; grid-row: 3; }
+
+    .logo-small {
+      font-family: "Orbitron", sans-serif;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 5px;
+      line-height: 1;
+    }
+
+    .logo-title {
+      font-family: "Orbitron", sans-serif;
+      font-size: 31px;
+      font-weight: 900;
+      line-height: .9;
+      letter-spacing: -1px;
+      transform: skew(-8deg);
+    }
+
+    .logo-title .bac {
+      background: linear-gradient(180deg, #fff, #b7bfd4 45%, #5f6878 78%, #fff);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .logo-title .bo {
+      background: linear-gradient(180deg, #ff405a, #e30628 50%, #7a0616);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .admin-badge {
+      margin-top: 8px;
+      display: inline-flex;
+      height: 24px;
+      padding: 0 12px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      border: 1px solid rgba(255,18,60,.45);
+      background: rgba(255,18,60,.10);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+    }
+
+    .menu {
+      width: 100%;
+      display: grid;
+      gap: 10px;
+    }
+
+    .menu-item {
+      min-height: 50px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 13px;
+      color: #c9d2eb;
+      font-size: 13px;
+      font-weight: 850;
+      line-height: 1.15;
+      border: 1px solid transparent;
+      transition: .2s ease;
+    }
+
+    .menu-item svg {
+      width: 19px;
+      height: 19px;
+      flex: 0 0 auto;
+    }
+
+    .menu-item:hover,
+    .menu-item.active {
+      color: #fff;
+      background: linear-gradient(90deg, rgba(28,70,255,.45), rgba(28,70,255,.12));
+      border-color: rgba(73,111,255,.95);
+      box-shadow:
+        0 0 16px rgba(35,88,255,.28),
+        inset 0 0 16px rgba(35,88,255,.16);
+    }
+
+    .sidebar-note {
+      margin-top: auto;
+      border-radius: 15px;
+      padding: 13px;
+      background: rgba(255,255,255,.045);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .sidebar-note span {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 950;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .sidebar-note strong {
+      display: block;
+      font-size: 12px;
+      line-height: 1.25;
+      word-break: break-word;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      min-width: 0;
+      padding: 26px 34px 36px;
+    }
+
+    .main-area {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .page-title h1 {
+      font-size: clamp(25px, 4vw, 40px);
+      line-height: 1;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: -1px;
+    }
+
+    .page-title p {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+      margin-top: 7px;
+      max-width: 680px;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .btn {
+      min-height: 40px;
+      border-radius: 12px;
+      padding: 0 14px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .25px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: .2s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.08);
+    }
+
+    .btn-blue { background: linear-gradient(90deg, #2358ff, #173bc2); box-shadow: 0 0 18px rgba(35,88,255,.22); }
+    .btn-red { background: linear-gradient(90deg, #ff123c, #98071e); box-shadow: 0 0 18px rgba(255,18,60,.20); }
+    .btn-green { background: linear-gradient(90deg, #17bd65, #0c7c3e); box-shadow: 0 0 18px rgba(23,189,101,.18); }
+    .btn-light { background: rgba(255,255,255,.075); border: 1px solid rgba(255,255,255,.12); color: #dce5ff; }
+
+    .section-card {
+      background:
+        radial-gradient(circle at 18% 10%, rgba(35,88,255,.10), transparent 38%),
+        linear-gradient(180deg, rgba(7,12,29,.96), rgba(4,7,17,.96));
+      border: 1px solid rgba(49, 90, 200, .36);
+      border-radius: var(--radius);
+      box-shadow:
+        0 0 18px rgba(28,70,255,.10),
+        inset 0 0 28px rgba(255,255,255,.018);
+      padding: 18px;
+      margin-bottom: 16px;
+      scroll-margin-top: 18px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      padding-bottom: 14px;
+      margin-bottom: 14px;
+    }
+
+    .section-header h2 {
+      font-size: 18px;
+      line-height: 1.1;
+      font-weight: 950;
+      text-transform: uppercase;
+    }
+
+    .section-header p {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      margin-top: 5px;
+    }
+
+    .tag {
+      min-height: 26px;
+      padding: 0 10px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      background: rgba(255,255,255,.065);
+      border: 1px solid rgba(255,255,255,.12);
+      white-space: nowrap;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      min-height: 104px;
+      padding: 18px;
+      border-radius: var(--radius);
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 18% 10%, rgba(35,88,255,.13), transparent 40%),
+        linear-gradient(180deg, rgba(7,12,29,.96), rgba(4,7,17,.96));
+      border: 1px solid rgba(49, 90, 200, .36);
+      box-shadow: 0 0 18px rgba(28,70,255,.10);
+    }
+
+    .stat-card::after {
+      content: "";
+      position: absolute;
+      right: -36px;
+      top: -36px;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.10);
+    }
+
+    .stat-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 8px;
+    }
+
+    .stat-card strong {
+      display: block;
+      font-size: 30px;
+      line-height: 1;
+      font-weight: 950;
+    }
+
+    .stat-card small {
+      display: block;
+      color: #7f8baa;
+      font-size: 11px;
+      margin-top: 8px;
+    }
+
+    .green-text { color: var(--green) !important; }
+    .red-text { color: var(--red2) !important; }
+    .blue-text { color: var(--blue2) !important; }
+    .yellow-text { color: var(--yellow) !important; }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 180px 150px;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .search-wrap {
+      position: relative;
+    }
+
+    .search-wrap svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      width: 16px;
+      height: 16px;
+      transform: translateY(-50%);
+      color: #7f8baa;
+      pointer-events: none;
+    }
+
+    .input,
+    .select {
+      width: 100%;
+      height: 42px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(2,4,12,.85);
+      color: #fff;
+      padding: 0 12px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-wrap .input {
+      padding-left: 38px;
+    }
+
+    .input::placeholder {
+      color: #66718e;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(2,4,12,.62);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      min-width: 940px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 13px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      text-align: left;
+      vertical-align: middle;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    th {
+      color: #aeb8d8;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      font-weight: 950;
+      background: rgba(255,255,255,.045);
+    }
+
+    tbody tr:hover {
+      background: rgba(255,255,255,.035);
+    }
+
+    .user-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 210px;
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 950;
+      background: linear-gradient(135deg, #2358ff, #ff123c);
+      box-shadow: 0 0 14px rgba(35,88,255,.22);
+    }
+
+    .user-info strong {
+      display: block;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .user-info span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 3px;
+    }
+
+    .pill {
+      display: inline-flex;
+      height: 26px;
+      padding: 0 10px;
+      border-radius: 999px;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .35px;
+    }
+
+    .pill.active { color: var(--green); background: rgba(35,214,118,.10); border: 1px solid rgba(35,214,118,.28); }
+    .pill.blocked { color: var(--red2); background: rgba(255,18,60,.10); border: 1px solid rgba(255,18,60,.28); }
+    .pill.pending { color: var(--yellow); background: rgba(255,209,102,.10); border: 1px solid rgba(255,209,102,.28); }
+
+    .module-group {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .module-chip {
+      width: 30px;
+      height: 28px;
+      border-radius: 9px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 950;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.09);
+      background: rgba(255,255,255,.06);
+      opacity: .42;
+    }
+
+    .module-chip.on {
+      opacity: 1;
+      border-color: rgba(35,88,255,.45);
+      background: rgba(35,88,255,.26);
+      box-shadow: 0 0 12px rgba(35,88,255,.12);
+    }
+
+    .table-actions {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .mini-btn {
+      height: 30px;
+      padding: 0 10px;
+      border-radius: 9px;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 950;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mini-blue { background: rgba(35,88,255,.90); }
+    .mini-red { background: rgba(255,18,60,.86); }
+    .mini-light { background: rgba(255,255,255,.075); border: 1px solid rgba(255,255,255,.10); color: #dce5ff; }
+
+    .access-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .access-card {
+      min-height: 146px;
+      border-radius: 16px;
+      padding: 14px;
+      background: rgba(2,4,12,.58);
+      border: 1px solid rgba(255,255,255,.08);
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+    }
+
+    .access-card h3 {
+      font-size: 13px;
+      line-height: 1.15;
+      font-weight: 950;
+      text-transform: uppercase;
+    }
+
+    .access-card p {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.35;
+      flex: 1;
+    }
+
+    .access-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .upload-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, .8fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .field-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field label {
+      color: #cbd4ed;
+      font-size: 11px;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .45px;
+    }
+
+    .file-input {
+      width: 100%;
+      min-height: 74px;
+      border-radius: 15px;
+      border: 1px dashed rgba(115,150,255,.42);
+      background: rgba(2,4,12,.64);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      color: #cbd4ed;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .file-input input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .file-input strong {
+      display: block;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 950;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .file-input span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.3;
+    }
+
+    .size-note {
+      border-radius: 14px;
+      border: 1px solid rgba(255,209,102,.28);
+      background: rgba(255,209,102,.08);
+      padding: 12px;
+      color: #ffe2a1;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .size-note strong {
+      color: #fff;
+    }
+
+    .banner-preview {
+      height: 220px;
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid rgba(255,18,60,.55);
+      background:
+        radial-gradient(circle at 68% 44%, rgba(39,87,255,.42), transparent 27%),
+        radial-gradient(circle at 86% 48%, rgba(255,18,60,.32), transparent 26%),
+        linear-gradient(110deg, #050816 0%, #070b1c 48%, #080611 100%);
+      background-size: cover;
+      background-position: center;
+      box-shadow: 0 0 18px rgba(255,18,60,.10);
+    }
+
+    .banner-preview::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(2,4,11,.88), rgba(2,4,11,.42), rgba(2,4,11,.10));
+      z-index: 1;
+    }
+
+    .banner-content {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      max-width: 310px;
+    }
+
+    .banner-content span {
+      color: var(--red2);
+      font-size: 11px;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-bottom: 8px;
+    }
+
+    .banner-content h3 {
+      font-family: "Orbitron", sans-serif;
+      font-size: 28px;
+      line-height: .9;
+      text-transform: uppercase;
+    }
+
+    .banner-content p {
+      margin-top: 10px;
+      color: #c2cbe0;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .banner-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .logs-list {
+      display: grid;
+      gap: 10px;
+      max-height: 360px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .log-item {
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(2,4,12,.58);
+      border: 1px solid rgba(255,255,255,.08);
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .log-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      margin-top: 5px;
+      background: var(--blue2);
+      flex: 0 0 auto;
+      box-shadow: 0 0 9px currentColor;
+    }
+
+    .log-dot.green { background: var(--green); }
+    .log-dot.red { background: var(--red2); }
+    .log-dot.yellow { background: var(--yellow); }
+
+    .log-item strong {
+      display: block;
+      font-size: 12px;
+      line-height: 1.2;
+    }
+
+    .log-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.35;
+      margin-top: 4px;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.70);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 18px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      width: min(94vw, 540px);
+      border-radius: 20px;
+      border: 1px solid rgba(72,111,255,.42);
+      background: rgba(5,8,20,.98);
+      box-shadow:
+        0 0 30px rgba(35,88,255,.22),
+        0 0 30px rgba(255,18,60,.12);
+      padding: 20px;
+    }
+
+    .modal h3 {
+      font-size: 18px;
+      font-weight: 950;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .modal p {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+      margin-bottom: 14px;
+    }
+
+    .module-edit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .module-toggle {
+      min-height: 46px;
+      border-radius: 13px;
+      padding: 0 12px;
+      background: rgba(255,255,255,.055);
+      border: 1px solid rgba(255,255,255,.10);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: #fff;
+    }
+
+    .module-toggle span {
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .switch {
+      width: 42px;
+      height: 24px;
+      border-radius: 999px;
+      background: rgba(255,18,60,.32);
+      border: 1px solid rgba(255,255,255,.10);
+      position: relative;
+      flex: 0 0 auto;
+    }
+
+    .switch::after {
+      content: "";
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      left: 3px;
+      top: 2px;
+      border-radius: 50%;
+      background: #fff;
+      transition: .2s ease;
+    }
+
+    .module-toggle.on .switch {
+      background: rgba(35,214,118,.38);
+    }
+
+    .module-toggle.on .switch::after {
+      left: 19px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    @media (max-width: 1120px) {
+      .app {
+        grid-template-columns: 186px minmax(0, 1fr);
+      }
+
+      :root {
+        --sidebar: 186px;
+      }
+
+      .access-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .upload-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 760px) {
+      .app {
+        display: block;
+      }
+
+      .sidebar {
+        width: 100%;
+        min-height: 78px;
+        height: 78px;
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        border-right: none;
+        border-top: 1px solid rgba(48,84,180,.28);
+        padding: 7px 8px;
+        z-index: 30;
+        display: block;
+      }
+
+      .sidebar-logo,
+      .sidebar-note {
+        display: none;
+      }
+
+      .menu {
+        height: 100%;
+        display: flex;
+        flex-direction: row;
+        gap: 6px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: none;
+        padding-bottom: 4px;
+      }
+
+      .menu::-webkit-scrollbar {
+        display: none;
+      }
+
+      .menu-item {
+        min-width: 92px;
+        min-height: 58px;
+        flex-direction: column;
+        justify-content: center;
+        gap: 4px;
+        font-size: 8px;
+        padding: 5px 6px;
+        text-align: center;
+        border-radius: 10px;
+      }
+
+      .menu-item svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      .content {
+        padding: 16px 12px 102px;
+      }
+
+      .topbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+      }
+
+      .top-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      .section-header {
+        flex-direction: column;
+      }
+
+      .access-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      .stat-card {
+        min-height: 90px;
+        padding: 14px;
+      }
+
+      .stat-card strong {
+        font-size: 24px;
+      }
+
+      .section-card {
+        padding: 14px;
+      }
+
+      .banner-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .module-edit-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .top-actions,
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .page-title h1 {
+        font-size: 25px;
+      }
+
+      .banner-preview {
+        height: 180px;
+      }
+
+      .banner-content h3 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="dice-mini">
+          <div class="die die-blue six">
+            <span></span><span></span><span></span>
+            <span></span><span></span><span></span>
+          </div>
+
+          <div class="die die-red five">
+            <span></span><span></span><span></span>
+            <span></span><span></span>
+          </div>
+        </div>
+
+        <div class="logo-small">GESTOR</div>
+        <div class="logo-title">
+          <span class="bac">BAC</span><span class="bo">BO</span>
+        </div>
+        <div class="admin-badge">Admin</div>
+      </div>
+
+      <nav class="menu">
+        <a href="#usuarios" class="menu-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke-width="1.8" stroke-linecap="round"/>
+            <circle cx="9" cy="7" r="4" stroke-width="1.8"/>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <span>Usuários</span>
+        </a>
+
+        <a href="#acessos" class="menu-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M12 3.5 19 6v5.4c0 4.2-2.8 7.4-7 9.1-4.2-1.7-7-4.9-7-9.1V6l7-2.5Z" stroke-width="1.8"/>
+            <path d="M9.4 12.2 11.2 14l3.6-4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Acessos</span>
+        </a>
+
+        <a href="#banner" class="menu-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <rect x="3" y="5" width="18" height="14" rx="2" stroke-width="1.8"/>
+            <path d="m8 13 2.4-2.4 3.2 3.2 1.7-1.7L19 16" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Banner</span>
+        </a>
+
+        <a href="#logs" class="menu-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M4 5h16M4 12h16M4 19h10" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <span>Logs</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-note">
+        <span>Administrador</span>
+        <strong>admin@gestorbacbo.com</strong>
+      </div>
+    </aside>
+
+    <section class="content">
+      <div class="main-area">
+        <div class="topbar">
+          <div class="page-title">
+            <h1>Painel Administrativo</h1>
+            <p>Modelo visual do painel para gerenciar usuários, acessos por módulo e banners da área dos clientes.</p>
+          </div>
+
+          <div class="top-actions">
+            <button class="btn btn-green" id="topReleaseAll">Liberar todos</button>
+            <button class="btn btn-red" id="topBlockAll">Bloquear todos</button>
+          </div>
+        </div>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span>Total de usuários</span>
+            <strong id="statTotal">0</strong>
+            <small>Cadastros simulados</small>
+          </div>
+
+          <div class="stat-card">
+            <span>Liberados</span>
+            <strong id="statActive" class="green-text">0</strong>
+            <small>Acesso ativo</small>
+          </div>
+
+          <div class="stat-card">
+            <span>Bloqueados</span>
+            <strong id="statBlocked" class="red-text">0</strong>
+            <small>Acesso suspenso</small>
+          </div>
+
+          <div class="stat-card">
+            <span>Pendentes</span>
+            <strong id="statPending" class="yellow-text">0</strong>
+            <small>Aguardando liberação</small>
+          </div>
+        </section>
+
+        <section class="section-card" id="usuarios">
+          <div class="section-header">
+            <div>
+              <h2>Usuários</h2>
+              <p>Lista visual para liberar, bloquear e editar módulos por cliente.</p>
+            </div>
+            <span class="tag">Controle individual</span>
+          </div>
+
+          <div class="toolbar">
+            <div class="search-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="11" cy="11" r="7" stroke-width="1.8"/>
+                <path d="m20 20-3.5-3.5" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+              <input class="input" type="text" id="searchUser" placeholder="Buscar por nome ou e-mail" />
+            </div>
+
+            <select class="select" id="statusFilter">
+              <option value="todos">Todos</option>
+              <option value="liberado">Liberados</option>
+              <option value="bloqueado">Bloqueados</option>
+              <option value="pendente">Pendentes</option>
+            </select>
+
+            <button class="btn btn-light" id="resetUsers">Resetar demo</button>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Usuário</th>
+                  <th>Status</th>
+                  <th>Módulos</th>
+                  <th>Cadastro</th>
+                  <th>Último login</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="usersTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section-card" id="acessos">
+          <div class="section-header">
+            <div>
+              <h2>Acessos</h2>
+              <p>Libere ou bloqueie o sistema inteiro ou módulos específicos para todos os usuários.</p>
+            </div>
+            <span class="tag">Ações separadas</span>
+          </div>
+
+          <div class="access-grid">
+            <div class="access-card">
+              <h3>Acesso geral</h3>
+              <p>Controla se todos os usuários podem entrar ou ficam bloqueados no sistema.</p>
+              <div class="access-actions">
+                <button class="btn btn-green" data-bulk="geral" data-action="release">Liberar</button>
+                <button class="btn btn-red" data-bulk="geral" data-action="block">Bloquear</button>
+              </div>
+            </div>
+
+            <div class="access-card">
+              <h3>Sala de Padrões</h3>
+              <p>Controla o acesso ao painel de sinais e leitura de padrões.</p>
+              <div class="access-actions">
+                <button class="btn btn-blue" data-bulk="padroes" data-action="release">Liberar</button>
+                <button class="btn btn-light" data-bulk="padroes" data-action="block">Bloquear</button>
+              </div>
+            </div>
+
+            <div class="access-card">
+              <h3>Gestão de Banca</h3>
+              <p>Controla o acesso ao painel de controle financeiro e lançamentos.</p>
+              <div class="access-actions">
+                <button class="btn btn-blue" data-bulk="gestao" data-action="release">Liberar</button>
+                <button class="btn btn-light" data-bulk="gestao" data-action="block">Bloquear</button>
+              </div>
+            </div>
+
+            <div class="access-card">
+              <h3>Aulas</h3>
+              <p>Controla a área de conteúdos e playlist de aulas.</p>
+              <div class="access-actions">
+                <button class="btn btn-blue" data-bulk="aulas" data-action="release">Liberar</button>
+                <button class="btn btn-light" data-bulk="aulas" data-action="block">Bloquear</button>
+              </div>
+            </div>
+
+            <div class="access-card">
+              <h3>Comunidade</h3>
+              <p>Controla a liberação do grupo/comunidade para clientes.</p>
+              <div class="access-actions">
+                <button class="btn btn-blue" data-bulk="comunidade" data-action="release">Liberar</button>
+                <button class="btn btn-light" data-bulk="comunidade" data-action="block">Bloquear</button>
+              </div>
+            </div>
+
+            <div class="access-card">
+              <h3>Bloqueio total</h3>
+              <p>Botão rápido para bloquear o acesso geral e todos os módulos de uma só vez.</p>
+              <div class="access-actions">
+                <button class="btn btn-red" id="blockEverything">Bloquear tudo</button>
+                <button class="btn btn-green" id="releaseEverything">Liberar tudo</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="banner">
+          <div class="section-header">
+            <div>
+              <h2>Banner da área do cliente</h2>
+              <p>Modelo visual para subir banners em PNG, JPEG ou WEBP e visualizar antes de salvar.</p>
+            </div>
+            <span class="tag">Upload visual</span>
+          </div>
+
+          <div class="upload-grid">
+            <div>
+              <div class="field-grid">
+                <div class="field">
+                  <label>Banner desktop</label>
+                  <label class="file-input">
+                    <input type="file" id="desktopBannerFile" accept="image/png,image/jpeg,image/webp" />
+                    <div>
+                      <strong>Enviar PNG, JPEG ou WEBP</strong>
+                      <span>Arraste ou clique para selecionar o banner desktop.</span>
+                    </div>
+                  </label>
+                </div>
+
+                <div class="field">
+                  <label>Banner mobile</label>
+                  <label class="file-input">
+                    <input type="file" id="mobileBannerFile" accept="image/png,image/jpeg,image/webp" />
+                    <div>
+                      <strong>Enviar PNG, JPEG ou WEBP</strong>
+                      <span>Opcional: banner específico para celular.</span>
+                    </div>
+                  </label>
+                </div>
+
+                <div class="field">
+                  <label for="bannerTitle">Título do banner</label>
+                  <input class="input" type="text" id="bannerTitle" placeholder="Ex: Bem-vindo ao Gestor Bac Bo" />
+                </div>
+
+                <div class="field">
+                  <label for="bannerSubtitle">Subtítulo do banner</label>
+                  <input class="input" type="text" id="bannerSubtitle" placeholder="Ex: Sua central de estratégias e gestão" />
+                </div>
+
+                <div class="size-note">
+                  <strong>Medidas recomendadas:</strong><br>
+                  Desktop: 1920 × 500 px ou 1600 × 420 px.<br>
+                  Mobile: 1080 × 1350 px ou 900 × 1200 px.<br>
+                  Formatos aceitos: PNG, JPEG e WEBP.
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="banner-preview" id="bannerPreview">
+                <div class="banner-content">
+                  <span>Área do cliente</span>
+                  <h3 id="previewTitle">Gestor Bac Bo</h3>
+                  <p id="previewSubtitle">Sua central de estratégias, gestão e evolução.</p>
+                </div>
+              </div>
+
+              <div class="banner-actions">
+                <button class="btn btn-blue" id="saveBanner">Salvar prévia</button>
+                <button class="btn btn-light" id="clearBanner">Limpar banner</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card" id="logs">
+          <div class="section-header">
+            <div>
+              <h2>Logs administrativos</h2>
+              <p>Histórico visual de ações executadas no painel.</p>
+            </div>
+          </div>
+
+          <div class="logs-list" id="logsList"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="moduleModal">
+    <div class="modal">
+      <h3>Editar módulos</h3>
+      <p id="modalUserName">Usuário selecionado</p>
+
+      <div class="module-edit-grid">
+        <button class="module-toggle" data-module="padroes" type="button">
+          <span>Sala de Padrões</span>
+          <i class="switch"></i>
+        </button>
+
+        <button class="module-toggle" data-module="gestao" type="button">
+          <span>Gestão de Banca</span>
+          <i class="switch"></i>
+        </button>
+
+        <button class="module-toggle" data-module="aulas" type="button">
+          <span>Aulas</span>
+          <i class="switch"></i>
+        </button>
+
+        <button class="module-toggle" data-module="comunidade" type="button">
+          <span>Comunidade</span>
+          <i class="switch"></i>
+        </button>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-light" id="closeModal">Cancelar</button>
+        <button class="btn btn-blue" id="saveModules">Salvar módulos</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const DEFAULT_USERS = [
+      {
+        id: 1,
+        name: "João Almeida",
+        email: "joao@email.com",
+        status: "liberado",
+        created: "07/06/2026",
+        lastLogin: "Hoje",
+        modules: { padroes: true, gestao: true, aulas: true, comunidade: true }
+      },
+      {
+        id: 2,
+        name: "Marcos Silva",
+        email: "marcos@email.com",
+        status: "bloqueado",
+        created: "06/06/2026",
+        lastLogin: "Ontem",
+        modules: { padroes: false, gestao: false, aulas: true, comunidade: true }
+      },
+      {
+        id: 3,
+        name: "Ana Souza",
+        email: "ana@email.com",
+        status: "pendente",
+        created: "05/06/2026",
+        lastLogin: "Nunca",
+        modules: { padroes: false, gestao: false, aulas: false, comunidade: false }
+      },
+      {
+        id: 4,
+        name: "Carlos Lima",
+        email: "carlos@email.com",
+        status: "liberado",
+        created: "03/06/2026",
+        lastLogin: "2 dias atrás",
+        modules: { padroes: true, gestao: true, aulas: false, comunidade: true }
+      },
+      {
+        id: 5,
+        name: "Fernanda Costa",
+        email: "fernanda@email.com",
+        status: "liberado",
+        created: "01/06/2026",
+        lastLogin: "Hoje",
+        modules: { padroes: true, gestao: false, aulas: true, comunidade: true }
+      }
+    ];
+
+    let users = [];
+    let selectedUserId = null;
+    let tempModules = {};
+    let currentDesktopBanner = "";
+    let currentMobileBanner = "";
+
+    const usersTable = document.getElementById("usersTable");
+    const searchUser = document.getElementById("searchUser");
+    const statusFilter = document.getElementById("statusFilter");
+
+    const statTotal = document.getElementById("statTotal");
+    const statActive = document.getElementById("statActive");
+    const statBlocked = document.getElementById("statBlocked");
+    const statPending = document.getElementById("statPending");
+
+    const logsList = document.getElementById("logsList");
+    const moduleModal = document.getElementById("moduleModal");
+    const modalUserName = document.getElementById("modalUserName");
+
+    const bannerTitle = document.getElementById("bannerTitle");
+    const bannerSubtitle = document.getElementById("bannerSubtitle");
+    const bannerPreview = document.getElementById("bannerPreview");
+    const previewTitle = document.getElementById("previewTitle");
+    const previewSubtitle = document.getElementById("previewSubtitle");
+
+    function cloneDefaultUsers() {
+      return JSON.parse(JSON.stringify(DEFAULT_USERS));
+    }
+
+    function getInitials(name) {
+      return name
+        .split(" ")
+        .map(part => part[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase();
+    }
+
+    function loadUsers() {
+      const saved = localStorage.getItem("admin_v2_users_bacbo");
+      users = saved ? JSON.parse(saved) : cloneDefaultUsers();
+    }
+
+    function saveUsers() {
+      localStorage.setItem("admin_v2_users_bacbo", JSON.stringify(users));
+    }
+
+    function addLog(type, title, text) {
+      const logs = JSON.parse(localStorage.getItem("admin_v2_logs_bacbo") || "[]");
+      logs.unshift({
+        type,
+        title,
+        text,
+        time: new Date().toLocaleString("pt-BR")
+      });
+
+      localStorage.setItem("admin_v2_logs_bacbo", JSON.stringify(logs.slice(0, 14)));
+      renderLogs();
+    }
+
+    function renderLogs() {
+      const logs = JSON.parse(localStorage.getItem("admin_v2_logs_bacbo") || "[]");
+
+      if (!logs.length) {
+        logsList.innerHTML = `
+          <div class="log-item">
+            <div class="log-dot"></div>
+            <div>
+              <strong>Painel administrativo carregado</strong>
+              <span>As ações feitas aqui aparecerão como exemplo de atividade.</span>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      logsList.innerHTML = logs.map(log => `
+        <div class="log-item">
+          <div class="log-dot ${log.type}"></div>
+          <div>
+            <strong>${log.title}</strong>
+            <span>${log.text}<br>${log.time}</span>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function statusLabel(status) {
+      if (status === "liberado") return "Liberado";
+      if (status === "bloqueado") return "Bloqueado";
+      return "Pendente";
+    }
+
+    function moduleChips(modules) {
+      return `
+        <div class="module-group">
+          <span title="Sala de Padrões" class="module-chip ${modules.padroes ? "on" : ""}">P</span>
+          <span title="Gestão de Banca" class="module-chip ${modules.gestao ? "on" : ""}">G</span>
+          <span title="Aulas" class="module-chip ${modules.aulas ? "on" : ""}">A</span>
+          <span title="Comunidade" class="module-chip ${modules.comunidade ? "on" : ""}">C</span>
+        </div>
+      `;
+    }
+
+    function filteredUsers() {
+      const term = searchUser.value.trim().toLowerCase();
+      const status = statusFilter.value;
+
+      return users.filter(user => {
+        const matchesTerm =
+          user.name.toLowerCase().includes(term) ||
+          user.email.toLowerCase().includes(term);
+
+        const matchesStatus = status === "todos" || user.status === status;
+
+        return matchesTerm && matchesStatus;
+      });
+    }
+
+    function renderUsers() {
+      const list = filteredUsers();
+
+      if (!list.length) {
+        usersTable.innerHTML = `
+          <tr>
+            <td colspan="6">Nenhum usuário encontrado.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      usersTable.innerHTML = list.map(user => `
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div class="avatar">${getInitials(user.name)}</div>
+              <div class="user-info">
+                <strong>${user.name}</strong>
+                <span>${user.email}</span>
+              </div>
+            </div>
+          </td>
+          <td><span class="pill ${user.status === "liberado" ? "active" : user.status === "bloqueado" ? "blocked" : "pending"}">${statusLabel(user.status)}</span></td>
+          <td>${moduleChips(user.modules)}</td>
+          <td>${user.created}</td>
+          <td>${user.lastLogin}</td>
+          <td>
+            <div class="table-actions">
+              <button class="mini-btn mini-blue" onclick="releaseUser(${user.id})">Liberar</button>
+              <button class="mini-btn mini-red" onclick="blockUser(${user.id})">Bloquear</button>
+              <button class="mini-btn mini-light" onclick="openModuleModal(${user.id})">Módulos</button>
+            </div>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function renderStats() {
+      statTotal.textContent = users.length;
+      statActive.textContent = users.filter(user => user.status === "liberado").length;
+      statBlocked.textContent = users.filter(user => user.status === "bloqueado").length;
+      statPending.textContent = users.filter(user => user.status === "pendente").length;
+    }
+
+    function renderAll() {
+      renderUsers();
+      renderStats();
+      renderLogs();
+    }
+
+    function releaseUser(id) {
+      const user = users.find(item => item.id === id);
+      if (!user) return;
+
+      user.status = "liberado";
+      user.modules.padroes = true;
+      user.modules.gestao = true;
+      saveUsers();
+      addLog("green", "Usuário liberado", user.name + " recebeu acesso ao sistema.");
+      renderAll();
+    }
+
+    function blockUser(id) {
+      const user = users.find(item => item.id === id);
+      if (!user) return;
+
+      user.status = "bloqueado";
+      saveUsers();
+      addLog("red", "Usuário bloqueado", user.name + " teve o acesso bloqueado.");
+      renderAll();
+    }
+
+    function releaseAllUsers() {
+      users.forEach(user => user.status = "liberado");
+      saveUsers();
+      addLog("green", "Acesso geral liberado", "Todos os usuários foram liberados para entrar.");
+      renderAll();
+    }
+
+    function blockAllUsers() {
+      users.forEach(user => user.status = "bloqueado");
+      saveUsers();
+      addLog("red", "Acesso geral bloqueado", "Todos os usuários foram bloqueados.");
+      renderAll();
+    }
+
+    function setModuleForAll(moduleName, value) {
+      users.forEach(user => {
+        user.modules[moduleName] = value;
+        if (value && user.status === "pendente") user.status = "liberado";
+      });
+      saveUsers();
+      addLog(value ? "green" : "yellow", value ? "Módulo liberado" : "Módulo bloqueado", moduleLabel(moduleName) + " foi " + (value ? "liberado" : "bloqueado") + " para todos.");
+      renderAll();
+    }
+
+    function moduleLabel(moduleName) {
+      const labels = {
+        padroes: "Sala de Padrões",
+        gestao: "Gestão de Banca",
+        aulas: "Aulas",
+        comunidade: "Comunidade"
+      };
+      return labels[moduleName] || moduleName;
+    }
+
+    function releaseEverything() {
+      users.forEach(user => {
+        user.status = "liberado";
+        user.modules.padroes = true;
+        user.modules.gestao = true;
+        user.modules.aulas = true;
+        user.modules.comunidade = true;
+      });
+      saveUsers();
+      addLog("green", "Tudo liberado", "Acesso geral e todos os módulos foram liberados.");
+      renderAll();
+    }
+
+    function blockEverything() {
+      users.forEach(user => {
+        user.status = "bloqueado";
+        user.modules.padroes = false;
+        user.modules.gestao = false;
+        user.modules.aulas = false;
+        user.modules.comunidade = false;
+      });
+      saveUsers();
+      addLog("red", "Tudo bloqueado", "Acesso geral e todos os módulos foram bloqueados.");
+      renderAll();
+    }
+
+    function openModuleModal(id) {
+      selectedUserId = id;
+      const user = users.find(item => item.id === id);
+      if (!user) return;
+
+      tempModules = { ...user.modules };
+      modalUserName.textContent = user.name + " • " + user.email;
+
+      document.querySelectorAll(".module-toggle").forEach(button => {
+        const module = button.dataset.module;
+        button.classList.toggle("on", !!tempModules[module]);
+      });
+
+      moduleModal.classList.add("open");
+    }
+
+    function closeModuleModal() {
+      moduleModal.classList.remove("open");
+      selectedUserId = null;
+      tempModules = {};
+    }
+
+    function saveModules() {
+      const user = users.find(item => item.id === selectedUserId);
+      if (!user) return;
+
+      user.modules = { ...tempModules };
+      saveUsers();
+      addLog("blue", "Módulos atualizados", "Os módulos de " + user.name + " foram atualizados.");
+      closeModuleModal();
+      renderAll();
+    }
+
+    function updateBannerPreview() {
+      const title = bannerTitle.value.trim() || "Gestor Bac Bo";
+      const subtitle = bannerSubtitle.value.trim() || "Sua central de estratégias, gestão e evolução.";
+
+      previewTitle.textContent = title;
+      previewSubtitle.textContent = subtitle;
+
+      if (currentDesktopBanner) {
+        bannerPreview.style.backgroundImage = "url('" + currentDesktopBanner + "')";
+      } else {
+        bannerPreview.style.backgroundImage = "";
+      }
+    }
+
+    function readBannerFile(input, type) {
+      const file = input.files && input.files[0];
+      if (!file) return;
+
+      const allowed = ["image/png", "image/jpeg", "image/webp"];
+
+      if (!allowed.includes(file.type)) {
+        alert("Envie apenas PNG, JPEG ou WEBP.");
+        input.value = "";
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = function(event) {
+        if (type === "desktop") {
+          currentDesktopBanner = event.target.result;
+          addLog("blue", "Banner desktop carregado", "Arquivo selecionado: " + file.name);
+        } else {
+          currentMobileBanner = event.target.result;
+          addLog("blue", "Banner mobile carregado", "Arquivo selecionado: " + file.name);
+        }
+
+        updateBannerPreview();
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+    function saveBannerPreview() {
+      const data = {
+        desktop: currentDesktopBanner,
+        mobile: currentMobileBanner,
+        title: bannerTitle.value.trim(),
+        subtitle: bannerSubtitle.value.trim()
+      };
+
+      localStorage.setItem("admin_v2_banner_bacbo", JSON.stringify(data));
+      addLog("blue", "Banner salvo", "A prévia dos banners foi salva neste navegador.");
+      updateBannerPreview();
+    }
+
+    function loadBannerPreview() {
+      const saved = localStorage.getItem("admin_v2_banner_bacbo");
+
+      if (!saved) return;
+
+      const data = JSON.parse(saved);
+      currentDesktopBanner = data.desktop || "";
+      currentMobileBanner = data.mobile || "";
+      bannerTitle.value = data.title || "";
+      bannerSubtitle.value = data.subtitle || "";
+      updateBannerPreview();
+    }
+
+    function clearBannerPreview() {
+      currentDesktopBanner = "";
+      currentMobileBanner = "";
+      bannerTitle.value = "";
+      bannerSubtitle.value = "";
+      document.getElementById("desktopBannerFile").value = "";
+      document.getElementById("mobileBannerFile").value = "";
+      localStorage.removeItem("admin_v2_banner_bacbo");
+      updateBannerPreview();
+      addLog("yellow", "Banner limpo", "Os banners voltaram ao padrão visual.");
+    }
+
+    searchUser.addEventListener("input", renderUsers);
+    statusFilter.addEventListener("change", renderUsers);
+
+    document.getElementById("topReleaseAll").addEventListener("click", releaseAllUsers);
+    document.getElementById("topBlockAll").addEventListener("click", blockAllUsers);
+
+    document.querySelectorAll("[data-bulk]").forEach(button => {
+      button.addEventListener("click", () => {
+        const module = button.dataset.bulk;
+        const action = button.dataset.action;
+
+        if (module === "geral" && action === "release") releaseAllUsers();
+        if (module === "geral" && action === "block") blockAllUsers();
+
+        if (module !== "geral") {
+          setModuleForAll(module, action === "release");
+        }
+      });
+    });
+
+    document.getElementById("releaseEverything").addEventListener("click", releaseEverything);
+    document.getElementById("blockEverything").addEventListener("click", blockEverything);
+
+    document.getElementById("resetUsers").addEventListener("click", () => {
+      users = cloneDefaultUsers();
+      saveUsers();
+      localStorage.removeItem("admin_v2_logs_bacbo");
+      addLog("blue", "Demo resetada", "A lista de usuários voltou ao estado inicial.");
+      renderAll();
+    });
+
+    document.querySelectorAll(".module-toggle").forEach(button => {
+      button.addEventListener("click", () => {
+        const module = button.dataset.module;
+        tempModules[module] = !tempModules[module];
+        button.classList.toggle("on", !!tempModules[module]);
+      });
+    });
+
+    document.getElementById("closeModal").addEventListener("click", closeModuleModal);
+    document.getElementById("saveModules").addEventListener("click", saveModules);
+
+    moduleModal.addEventListener("click", event => {
+      if (event.target === moduleModal) closeModuleModal();
+    });
+
+    document.getElementById("desktopBannerFile").addEventListener("change", function() {
+      readBannerFile(this, "desktop");
+    });
+
+    document.getElementById("mobileBannerFile").addEventListener("change", function() {
+      readBannerFile(this, "mobile");
+    });
+
+    bannerTitle.addEventListener("input", updateBannerPreview);
+    bannerSubtitle.addEventListener("input", updateBannerPreview);
+    document.getElementById("saveBanner").addEventListener("click", saveBannerPreview);
+    document.getElementById("clearBanner").addEventListener("click", clearBannerPreview);
+
+    document.querySelectorAll(".menu-item").forEach(item => {
+      item.addEventListener("click", () => {
+        document.querySelectorAll(".menu-item").forEach(link => link.classList.remove("active"));
+        item.classList.add("active");
+      });
+    });
+
+    loadUsers();
+    loadBannerPreview();
+    renderAll();
+  </script>
+</body>
+</html>
